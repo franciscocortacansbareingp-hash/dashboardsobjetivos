@@ -7,26 +7,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8; }
+        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue: #1d4ed8; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; }
         .container { max-width: 950px; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-        select { padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: white; cursor: pointer; color: var(--primary); }
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); }
+        select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: #fff; color: var(--primary); font-weight: 600; cursor: pointer; }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
-        .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-        .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
+        .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
-        .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
-        .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
-        .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
-        .progress-bg { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 10px; overflow: hidden; }
-        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s ease; }
-        .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
-        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; }
+        .falta { color: var(--blue); background: rgba(29, 78, 216, 0.1); border: 1px solid var(--blue); }
+        .superado { color: var(--accent); background: rgba(5, 150, 105, 0.1); border: 1px solid var(--accent); }
+        .progress-area { display: flex; align-items: center; gap: 15px; margin-top: 15px; }
+        .progress-bg { flex-grow: 1; background: var(--border); height: 10px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s; }
+        .pct-text { font-weight: 800; font-size: 0.9rem; min-width: 40px; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -34,63 +33,40 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard Beccar</h1>
-        <select id="mesSelector"><option>Cargando meses...</option></select>
+        <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
-    <div class="metric-row">
-        <div class="row-main">
-            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="f-obj" class="target-value">$ 0</span></div>
-            <div style="text-align:right"><span id="f-diff-label" class="label">Desafío</span><br><div id="f-diff" class="diff-tag"></div></div>
+    <div id="metrics-container">
+        <div class="metric-row">
+            <div class="row-main">
+                <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+                <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
+                <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
+            </div>
+            <div class="progress-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-text">0%</span></div>
         </div>
-        <div class="progress-bar-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-label">0%</span></div>
-    </div>
-
-    <div class="metric-row">
-        <div class="row-main">
-            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="n13-obj" class="target-value">0</span></div>
-            <div style="text-align:right"><span id="n13-diff-label" class="label">Desafío</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area"><div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div><span id="n13-pct" class="pct-label">0%</span></div>
-    </div>
-
-    <div class="metric-row">
-        <div class="row-main">
-            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="n17-obj" class="target-value">0</span></div>
-            <div style="text-align:right"><span id="n17-diff-label" class="label">Desafío</span><br><div id="n17-diff" class="diff-tag"></div></div>
-        </div>
-        <div class="progress-bar-area"><div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div><span id="n17-pct" class="pct-label">0%</span></div>
-    </div>
-
-    <div class="metric-row">
-        <div class="row-main">
-            <div><span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="s-obj" class="target-value">$ 0</span></div>
-            <div style="text-align:right"><span id="s-diff-label" class="label">Desafío</span><br><div id="s-diff" class="diff-tag"></div></div>
-        </div>
-        <div class="progress-bar-area"><div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div><span id="s-pct" class="pct-label">0%</span></div>
-    </div>
 </div>
 
 <script>
-    const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
+    // URL CORREGIDA: Usando /pub?output=csv para que sea legible por código
+    const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1690940562'; 
+    const GID_OBJETIVOS = '257732281'; 
 
     let rawVentas = [];
     let metasMap = {};
 
     function cleanNum(v) {
         if (!v || v === "" || v === "-") return 0;
-        // Elimina todo excepto números y puntos decimales
-        let s = String(v).replace(/[^\d.]/g, ''); 
+        // Elimina comas (miles) y limpia símbolos para que parseFloat funcione con el punto decimal
+        let s = String(v).replace(/[$\s,]/g, '');
         return parseFloat(s) || 0;
     }
 
     async function init() {
-        Papa.parse(`${URL_PUB}&gid=${GID_OBJETIVOS}`, {
+        // Cargar Metas con GID 257732281
+        Papa.parse(`${URL_BASE}&gid=${GID_OBJETIVOS}`, {
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
                 results.data.forEach(row => {
@@ -109,7 +85,8 @@
     }
 
     function cargarVentas() {
-        Papa.parse(`${URL_PUB}&gid=${GID_VENTAS}`, {
+        // Cargar Ventas con GID 0
+        Papa.parse(`${URL_BASE}&gid=${GID_VENTAS}`, {
             download: true, header: false, skipEmptyLines: true,
             complete: function(results) {
                 rawVentas = results.data;
@@ -129,10 +106,10 @@
 
         rawVentas.forEach(row => {
             const suc = String(row[0]).trim();
-            const mesRow = String(row[14]).trim().toLowerCase();
+            const mesR = String(row[14]).trim().toLowerCase();
             const act = String(row[8]).trim();
 
-            if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
+            if (suc === "88" && mesR === mesSel && (act === "1" || act === "5")) {
                 const imp = cleanNum(row[6]);
                 const cant = cleanNum(row[5]);
                 const rod = cleanNum(row[11]);
@@ -147,9 +124,6 @@
         render('n13', real.n13, meta.n13, false);
         render('n17', real.n17, meta.n17, false);
         render('s', real.s, meta.s, true);
-        
-        const inc = real.f > 0 ? (real.s / real.f * 100) : 0;
-        document.getElementById('i-val').innerText = inc.toFixed(2) + '%';
     }
 
     function render(id, val, target, isMoney) {
@@ -157,23 +131,33 @@
         const diff = val - target;
         const fmt = (n) => isMoney ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
         
-        document.getElementById(`${id}-val`).innerText = fmt(val);
-        document.getElementById(`${id}-obj`).innerText = fmt(target);
-        document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
-        document.getElementById(`${id}-pct`).innerText = pct + '%';
+        const vEl = document.getElementById(`${id}-val`);
+        if(vEl) vEl.innerText = fmt(val);
+        
+        const oEl = document.getElementById(`${id}-obj`);
+        if(oEl) oEl.innerText = fmt(target);
+        
+        const bEl = document.getElementById(`${id}-bar`);
+        if(bEl) bEl.style.width = Math.min(pct, 100) + '%';
+        
+        const pEl = document.getElementById(`${id}-pct`);
+        if(pEl) pEl.innerText = pct + '%';
         
         const dEl = document.getElementById(`${id}-diff`);
         const lEl = document.getElementById(`${id}-diff-label`);
-        if (diff < 0) {
-            lEl.innerText = "Desafío";
-            dEl.className = 'diff-tag falta';
-            dEl.innerText = fmt(Math.abs(diff));
-        } else {
-            lEl.innerText = "¡Superado!";
-            dEl.className = 'diff-tag superado';
-            dEl.innerText = `+${fmt(diff)}`;
+        if (dEl) {
+            if (diff < 0) {
+                lEl.innerText = "Falta";
+                dEl.className = 'diff-tag falta';
+                dEl.innerText = fmt(Math.abs(diff));
+            } else {
+                lEl.innerText = "Superado";
+                dEl.className = 'diff-tag superado';
+                dEl.innerText = "+" + fmt(diff);
+            }
         }
     }
+
     init();
 </script>
 </body>
