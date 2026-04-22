@@ -84,7 +84,7 @@
 
     function parseNum(v) {
         if (!v || v === "" || v === "-") return 0;
-        let s = String(v).replace(/[$\s,]/g, ''); 
+        let s = String(v).replace(/[^\d.]/g, ''); 
         return parseFloat(s) || 0;
     }
 
@@ -93,8 +93,8 @@
             download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
                 results.data.forEach(row => {
-                    // Actualizado para coincidir con los encabezados de tu imagen: Mes, Facturacion, Neumaticos13, Neumaticos17, Servicios
                     if (row["Mes"]) {
+                        // Nombres exactos de las columnas de tu imagen
                         metasMap[row["Mes"].trim().toLowerCase()] = {
                             f: parseNum(row["Facturacion"]),
                             n13: parseNum(row["Neumaticos13"]),
@@ -162,16 +162,16 @@
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
         document.getElementById(`${id}-pct`).innerText = pct + '%';
         
-        const dEl = document.getElementById(`${id}-diff`);
-        const lEl = document.getElementById(`${id}-diff-label`);
+        const dTag = document.getElementById(`${id}-diff`);
+        const lTag = document.getElementById(`${id}-diff-label`);
         if (diff < 0) {
-            lEl.innerText = "Desafío";
-            dEl.className = 'diff-tag falta';
-            dEl.innerText = fmt(Math.abs(diff));
+            lTag.innerText = "Desafío";
+            dTag.className = 'diff-tag falta';
+            dTag.innerText = fmt(Math.abs(diff));
         } else {
-            lEl.innerText = "¡Superado!";
-            dEl.className = 'diff-tag superado';
-            dEl.innerText = `+${fmt(diff)}`;
+            lTag.innerText = "¡Superado!";
+            dTag.className = 'diff-tag superado';
+            dTag.innerText = `+${fmt(diff)}`;
         }
     }
     init();
