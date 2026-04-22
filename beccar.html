@@ -238,33 +238,61 @@
 
     init();
 </script>
-    <style>
+<style>
+    /* Variables de color para Modo Día (por defecto) */
     :root {
-        --bg-color: #ffffff;
-        --text-color: #0f172a;
-        --card-bg: #ffffff;
+        --bg-main: #f1f5f9;
+        --bg-card: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --border-color: #e2e8f0;
+        --accent-color: #3b82f6;
     }
+
+    /* Variables de color para Modo Noche */
     body.dark-mode {
-        --bg-color: #0f172a;
-        --text-color: #f8fafc;
-        --card-bg: #1e293b;
+        --bg-main: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f8fafc;
+        --text-secondary: #94a3b8;
+        --border-color: #334155;
+        --accent-color: #60a5fa;
     }
-    body { background-color: var(--bg-color); color: var(--text-color); transition: 0.3s; }
-    .card { background-color: var(--card-bg) !important; color: var(--text-color) !important; } /* Ajustá '.card' al nombre de tus contenedores */
-    
+
+    /* Aplicación de las variables a los elementos */
+    body { 
+        background-color: var(--bg-main); 
+        color: var(--text-primary); 
+        transition: all 0.3s ease; 
+    }
+
+    /* Forzamos que los títulos y textos usen la variable */
+    h1, h2, h3, h4, p, span, label { 
+        color: var(--text-primary) !important; 
+    }
+
+    /* Buscamos los recuadros. Si tus tarjetas tienen otra clase, agregala aquí */
+    .card, .container, .dashboard-item, div[style*="background-color"] { 
+        background-color: var(--bg-card) !important; 
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    /* Botón flotante estético */
     #theme-toggle {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        padding: 10px 15px;
-        border-radius: 50px;
+        padding: 12px 20px;
+        border-radius: 30px;
         border: none;
         cursor: pointer;
-        background: #334155;
+        background: var(--accent-color);
         color: white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
         font-weight: bold;
-        z-index: 1000;
+        z-index: 9999;
+        font-family: sans-serif;
     }
 </style>
 
@@ -274,6 +302,7 @@
     const btn = document.getElementById('theme-toggle');
     const currentTheme = localStorage.getItem('theme');
 
+    // Al cargar la página, aplicamos el tema guardado
     if (currentTheme === 'dark') {
         document.body.classList.add('dark-mode');
         btn.textContent = '☀️ Modo Día';
