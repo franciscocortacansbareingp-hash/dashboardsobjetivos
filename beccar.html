@@ -34,7 +34,7 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard Beccar</h1>
-        <select id="mesSelector"><option>Cargando...</option></select>
+        <select id="mesSelector"><option>Cargando meses...</option></select>
     </div>
 
     <div class="metric-row">
@@ -75,7 +75,6 @@
 </div>
 
 <script>
-    // URL de publicación corregida (asegúrate de que el Sheet esté publicado como CSV)
     const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
     const GID_OBJETIVOS = '257732281'; 
@@ -83,19 +82,14 @@
     let rawVentas = [];
     let metasMap = {};
 
-    // FUNCIÓN DE LIMPIEZA DE NÚMEROS (Super flexible para copiar/pegar)
     function parseNum(v) {
         if (v === undefined || v === null || v === "" || v === "-" || v === " ") return 0;
         let s = String(v).trim().replace(/[$\s]/g, '');
-        
-        // Detecta si viene con formato 1.234,56 (estilo Arg de Excel)
         if (s.includes(',') && s.includes('.')) {
             s = s.replace(/\./g, '').replace(',', '.');
         } else if (s.includes(',')) {
-            // Si solo tiene coma, es el decimal
             s = s.replace(',', '.');
         }
-        
         let n = parseFloat(s);
         return isNaN(n) ? 0 : n;
     }
@@ -124,9 +118,12 @@
             download: true, header: false, skipEmptyLines: true,
             complete: function(results) {
                 rawVentas = results.data;
-                const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes" && m.trim() !== "");
+                // Obtenemos los meses únicos de la columna 14, limpiando espacios
+                const mesesRaw = rawVentas.map(r => String(r[14] || "").trim()).filter(m => m !== "" && m.toLowerCase() !== "mes");
+                const mesesUnicos = [...new Set(mesesRaw)];
+                
                 const sel = document.getElementById('mesSelector');
-                sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
+                sel.innerHTML = mesesUnicos.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
                 sel.addEventListener('change', update);
                 update();
             }
@@ -134,24 +131,22 @@
     }
 
     function update() {
-        const mesSel = document.getElementById('mesSelector').value;
+        const mesSel = document.getElementById('mesSelector').value.trim().toLowerCase();
         const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
             if (row.length < 15) return;
 
-            const suc = String(row[0]).trim();
-            const mesRow = String(row[14]).trim().toLowerCase();
-            const act = String(row[8]).trim();
+            const suc = String(row[0] || "").trim();
+            const mesRow = String(row[14] || "").trim().toLowerCase();
+            const act = String(row[8] || "").trim();
 
-            // Filtro Vendedor 88 (Beccar)
+            // Filtro Vendedor 88 y mes seleccionado
             if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
-                
-                // Rodado (Columna 11)
-                const rodText = String(row[11]).replace(/[^\d]/g, '');
+                const rodText = String(row[11] || "").replace(/[^\d]/g, '');
                 
                 real.f += imp;
 
@@ -161,8 +156,7 @@
                     if (rod >= 17) real.n17 += cant;
                 }
                 
-                // Servicios (Columna 10)
-                if (String(row[10]).trim().toUpperCase() === "A_SERVICIO") {
+                if (String(row[10] || "").trim().toUpperCase() === "A_SERVICIO") {
                     real.s += imp;
                 }
             }
@@ -181,7 +175,6 @@
         const pct = target > 0 ? Math.round(val / target * 100) : 0;
         const diff = val - target;
         
-        // Formato: Punto para miles, coma para centavos
         const fmt = (n) => {
             return n.toLocaleString('es-AR', { 
                 useGrouping: true, 
