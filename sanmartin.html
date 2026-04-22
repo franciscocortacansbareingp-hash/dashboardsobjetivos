@@ -237,29 +237,39 @@
     init();
 </script>
     <style>
-    /* Transición suave para que no sea un golpe a la vista */
-    body { 
-        transition: background-color 0.5s ease, color 0.5s ease; 
-    }
+    body { transition: background-color 0.4s, color 0.4s; }
 
-    /* Colores Modo Noche */
+    /* Estilos cuando el Modo Noche está activo */
     body.dark-mode {
-        background-color: #0f172a !important; /* Azul muy oscuro, casi negro */
-        color: #f8fafc !important;
+        background-color: #020617 !important; /* Fondo casi negro */
+        color: #ffffff !important;
     }
 
-    /* Esto hace que los títulos y textos cambien de color naturalmente */
-    body.dark-mode h1, 
-    body.dark-mode h2, 
-    body.dark-mode h3, 
-    body.dark-mode p, 
+    /* Título principal siempre visible */
+    body.dark-mode h1, body.dark-mode h2 {
+        color: #ffffff !important;
+    }
+
+    /* Transformación de los recuadros blancos */
+    /* Este selector busca divs que suelen ser tus tarjetas */
+    body.dark-mode .card, 
+    body.dark-mode div[style*="background-color: white"],
+    body.dark-mode div[style*="background-color: rgb(255, 255, 255)"],
+    body.dark-mode .container-fluid > div {
+        background-color: #1e293b !important; /* Azul oscuro grisáceo */
+        border: 1px solid #334155 !important;
+        box-shadow: none !important;
+    }
+
+    /* Forzar que todos los números y etiquetas dentro de los recuadros sean blancos */
     body.dark-mode div, 
-    body.dark-mode span,
+    body.dark-mode span, 
+    body.dark-mode p, 
     body.dark-mode label {
         color: #f8fafc !important;
     }
 
-    /* Botón Minimalista */
+    /* Botón flotante */
     #theme-toggle {
         position: fixed;
         bottom: 25px;
@@ -275,14 +285,10 @@
         justify-content: center;
         align-items: center;
         font-size: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         z-index: 10000;
     }
-    
-    body.dark-mode #theme-toggle {
-        background: #f8fafc;
-        color: #0f172a;
-    }
+    body.dark-mode #theme-toggle { background: #f8fafc; color: #020617; }
 </style>
 
 <button id="theme-toggle" title="Cambiar modo">🌙</button>
