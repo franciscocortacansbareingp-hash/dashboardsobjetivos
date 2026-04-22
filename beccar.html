@@ -82,9 +82,9 @@
     let rawVentas = [];
     let metasMap = {};
 
-    function cleanNum(v) {
+    function parseNum(v) {
         if (!v || v === "" || v === "-") return 0;
-        let s = String(v).replace(/[$\s,]/g, ''); 
+        let s = String(v).replace(/[^\d.]/g, ''); 
         return parseFloat(s) || 0;
     }
 
@@ -95,10 +95,10 @@
                 results.data.forEach(row => {
                     if (row["Mes"]) {
                         metasMap[row["Mes"].trim().toLowerCase()] = {
-                            f: cleanNum(row["Actividad"]),
-                            n13: cleanNum(row["Llanta"]),
-                            n17: cleanNum(row["Llanta 17"]),
-                            s: cleanNum(row["RANGO"])
+                            f: parseNum(row["Actividad"]),
+                            n13: parseNum(row["Llanta"]),
+                            n17: parseNum(row["Llanta 17"]),
+                            s: parseNum(row["RANGO"])
                         };
                     }
                 });
@@ -132,9 +132,9 @@
             const act = String(row[8]).trim();
 
             if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
-                const imp = cleanNum(row[6]);
-                const cant = cleanNum(row[5]);
-                const rod = cleanNum(row[11]);
+                const imp = parseNum(row[6]);
+                const cant = parseNum(row[5]);
+                const rod = parseNum(row[11]);
                 real.f += imp;
                 if (rod >= 13) real.n13 += cant;
                 if (rod >= 17) real.n17 += cant;
@@ -161,16 +161,16 @@
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
         document.getElementById(`${id}-pct`).innerText = pct + '%';
         
-        const dEl = document.getElementById(`${id}-diff`);
-        const lEl = document.getElementById(`${id}-diff-label`);
+        const dTag = document.getElementById(`${id}-diff`);
+        const lTag = document.getElementById(`${id}-diff-label`);
         if (diff < 0) {
-            lEl.innerText = "Desafío";
-            dEl.className = 'diff-tag falta';
-            dEl.innerText = fmt(Math.abs(diff));
+            lTag.innerText = "Desafío";
+            dTag.className = 'diff-tag falta';
+            dTag.innerText = fmt(Math.abs(diff));
         } else {
-            lEl.innerText = "¡Superado!";
-            dEl.className = 'diff-tag superado';
-            dEl.innerText = `+${fmt(diff)}`;
+            lTag.innerText = "¡Superado!";
+            dTag.className = 'diff-tag superado';
+            dTag.innerText = `+${fmt(diff)}`;
         }
     }
     init();
