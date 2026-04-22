@@ -7,26 +7,115 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; }
+        /* Variables de Luz */
+        :root { 
+            --bg: #f8fafc; 
+            --card: #ffffff; 
+            --primary: #0f172a; 
+            --accent: #059669; 
+            --text: #334155; 
+            --muted: #64748b; 
+            --border: #e2e8f0; 
+            --blue-target: #1d4ed8; 
+            --progress-bg: #f1f5f9;
+        }
+
+        /* Variables de Noche */
+        [data-theme="dark"] {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --primary: #f8fafc;
+            --accent: #10b981;
+            --text: #cbd5e1;
+            --muted: #94a3b8;
+            --border: #334155;
+            --blue-target: #3b82f6;
+            --progress-bg: #334155;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            padding: 30px 20px; 
+            margin: 0; 
+            transition: background 0.3s ease, color 0.3s ease; 
+        }
+
         .container { max-width: 950px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-        select { padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: white; cursor: pointer; color: var(--primary); }
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 25px; 
+            padding-bottom: 15px; 
+            border-bottom: 2px solid var(--border); 
+        }
+
+        .header h1 { 
+            font-size: 1.7rem; 
+            margin: 0; 
+            font-weight: 800; 
+            color: var(--primary); 
+            letter-spacing: -0.02em; 
+        }
+
+        .controls { display: flex; gap: 10px; align-items: center; }
+
+        select { 
+            padding: 8px 16px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border); 
+            font-size: 0.95rem; 
+            font-weight: 600; 
+            background: var(--card); 
+            color: var(--primary); 
+            cursor: pointer; 
+        }
+
+        /* Estilo del Botón Modo Noche */
+        #theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        #theme-toggle:hover { background: var(--border); }
+
+        .metric-row { 
+            background: var(--card); 
+            border-radius: 14px; 
+            border: 1px solid var(--border); 
+            padding: 20px 25px; 
+            margin-bottom: 15px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            transition: transform 0.2s ease;
+        }
+
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-        .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
+        .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); display: block; margin-top: 2px; }
+        
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 145px; text-align: center; }
-        .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
-        .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
+        .falta { color: var(--blue-target); background: rgba(29, 78, 216, 0.1); border: 1px solid var(--blue-target); }
+        .superado { color: var(--accent); background: rgba(16, 185, 129, 0.1); border: 1px solid var(--accent); }
+
         .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
-        .progress-bg { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 10px; overflow: hidden; }
+        .progress-bg { flex-grow: 1; background: var(--progress-bg); height: 10px; border-radius: 10px; overflow: hidden; }
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s ease; }
         .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
-        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; }
+        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--accent); padding: 3px 10px; border-radius: 6px; margin-left: 12px; }
     </style>
 </head>
 <body>
@@ -34,7 +123,10 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard Beccar</h1>
-        <select id="mesSelector"><option>Cargando datos...</option></select>
+        <div class="controls">
+            <button id="theme-toggle" title="Cambiar modo">🌓</button>
+            <select id="mesSelector"><option>Cargando datos...</option></select>
+        </div>
     </div>
 
     <div class="metric-row">
@@ -75,6 +167,26 @@
 </div>
 
 <script>
+    // --- LÓGICA DE MODO NOCHE ---
+    const themeToggle = document.getElementById('theme-toggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    if (currentTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
+
+    themeToggle.addEventListener('click', () => {
+        let theme = document.documentElement.getAttribute('data-theme');
+        if (theme === 'dark') {
+            document.documentElement.removeAttribute('data-theme');
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            localStorage.setItem('theme', 'dark');
+        }
+    });
+
+    // --- LÓGICA DE DATOS ---
     const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
     const GID_OBJETIVOS = '257732281'; 
@@ -135,22 +247,17 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach((row, index) => {
-            // Saltamos la cabecera y filas vacías
             if (index === 0 || row.length < 15) return; 
-
-            // Limpieza estricta de Sucursal, Mes y Actividad
             const suc = String(row[0] || "").trim().replace(/^0+/, ''); 
             const mesRow = String(row[14] || "").trim().toLowerCase();
-            const act = String(row[8] || "").trim(); // Actividad
+            const act = String(row[8] || "").trim();
 
-            // FILTRO ESTRICTO: Vendedor 88 Y Mes Y (Actividad 1 O Actividad 5)
             if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
                 const rodText = String(row[11] || "").replace(/[^\d]/g, '');
                 
                 real.f += imp;
-
                 if (rodText !== "") {
                     const rod = parseInt(rodText);
                     if (rod >= 13) real.n13 += cant;
