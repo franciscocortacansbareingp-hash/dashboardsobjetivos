@@ -74,6 +74,7 @@
             cursor: pointer; 
         }
 
+        /* Estilo del Botón Modo Noche */
         #theme-toggle {
             background: var(--card);
             border: 1px solid var(--border);
@@ -88,6 +89,8 @@
             transition: all 0.2s;
         }
 
+        #theme-toggle:hover { background: var(--border); }
+
         .metric-row { 
             background: var(--card); 
             border-radius: 14px; 
@@ -95,6 +98,7 @@
             padding: 20px 25px; 
             margin-bottom: 15px; 
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); 
+            transition: transform 0.2s ease;
         }
 
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
@@ -163,9 +167,13 @@
 </div>
 
 <script>
-    // Lógica de modo noche
+    // --- LÓGICA DE MODO NOCHE ---
     const themeToggle = document.getElementById('theme-toggle');
-    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    if (currentTheme === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+    }
 
     themeToggle.addEventListener('click', () => {
         let theme = document.documentElement.getAttribute('data-theme');
@@ -178,9 +186,10 @@
         }
     });
 
+    // --- LÓGICA DE DATOS ---
     const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1205656859'; // GID actualizado para San Martín
+    const GID_OBJETIVOS = '1205656859'; 
 
     let rawVentas = [];
     let metasMap = {};
@@ -188,8 +197,11 @@
     function parseNum(v) {
         if (!v || v === "" || v === "-" || v === " ") return 0;
         let s = String(v).trim().replace(/[$\s]/g, '');
-        if (s.includes(',') && s.includes('.')) s = s.replace(/\./g, '').replace(',', '.');
-        else if (s.includes(',')) s = s.replace(',', '.');
+        if (s.includes(',') && s.includes('.')) {
+            s = s.replace(/\./g, '').replace(',', '.');
+        } else if (s.includes(',')) {
+            s = s.replace(',', '.');
+        }
         let n = parseFloat(s);
         return isNaN(n) ? 0 : n;
     }
@@ -220,6 +232,7 @@
                 rawVentas = results.data;
                 const mesesRaw = rawVentas.map(r => String(r[14] || "").trim()).filter(m => m !== "" && m.toLowerCase() !== "mes");
                 const mesesUnicos = [...new Set(mesesRaw)];
+                
                 const sel = document.getElementById('mesSelector');
                 sel.innerHTML = mesesUnicos.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
                 sel.addEventListener('change', update);
@@ -239,7 +252,6 @@
             const mesRow = String(row[14] || "").trim().toLowerCase();
             const act = String(row[8] || "").trim();
 
-            // FILTRO PARA VENDEDOR 99
             if (suc === "99" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
@@ -251,7 +263,11 @@
                     if (rod >= 13) real.n13 += cant;
                     if (rod >= 17) real.n17 += cant;
                 }
-                if (String(row[10] || "").trim().toUpperCase() === "A_SERVICIO") real.s += imp;
+                
+                const rango = String(row[10] || "").trim().toUpperCase();
+                if (rango === "A_SERVICIO") {
+                    real.s += imp;
+                }
             }
         });
 
@@ -272,6 +288,7 @@
             minimumFractionDigits: isMoney ? 2 : 0, 
             maximumFractionDigits: 2 
         });
+        
         document.getElementById(`${id}-val`).innerText = isMoney ? '$ ' + fmt(val) : fmt(val);
         document.getElementById(`${id}-obj`).innerText = isMoney ? '$ ' + fmt(target) : fmt(target);
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
