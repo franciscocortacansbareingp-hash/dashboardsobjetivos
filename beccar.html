@@ -7,42 +7,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; }
+        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue: #1d4ed8; }
+        body.dark-mode { --bg: #0f172a; --card: #1e293b; --primary: #f8fafc; --accent: #22c55e; --text: #cbd5e1; --muted: #94a3b8; --border: #334155; --blue: #60a5fa; }
+        
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: 0.3s; }
         .container { max-width: 950px; margin: auto; }
-        
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
-        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-        select { padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: white; cursor: pointer; color: var(--primary); }
-
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); }
         
+        select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--primary); font-weight: 600; cursor: pointer; }
+        
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         
-        .label-group { display: flex; flex-direction: column; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
         
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-        .target-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
-        .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
-
-        .diff-group { text-align: right; }
-        .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
+        .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); }
+        
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
-        
-        /* Estilo para lo que falta (Azul Motivador) */
-        .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
-        
-        /* Estilo para lo superado (Verde) */
-        .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
+        .falta { color: var(--blue); background: rgba(29, 78, 216, 0.1); border: 1px solid var(--blue); }
+        .superado { color: var(--accent); background: rgba(5, 150, 105, 0.1); border: 1px solid var(--accent); }
 
-        .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
-        .progress-bg { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 10px; overflow: hidden; }
-        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
-        .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
-
-        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+        .progress-area { display: flex; align-items: center; gap: 15px; margin-top: 15px; }
+        .progress-bg { flex-grow: 1; background: var(--border); height: 10px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .pct-text { font-weight: 800; font-size: 0.9rem; min-width: 40px; color: var(--primary); }
+        
+        #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; }
+        .incidencia { font-size: 0.8rem; background: var(--primary); color: var(--card); padding: 2px 8px; border-radius: 5px; margin-left: 8px; }
     </style>
 </head>
 <body>
@@ -55,116 +49,84 @@
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Facturación Total</span>
-                <div id="f-val" class="main-value">$ 0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="f-obj" class="target-value">$ 0</span>
-            </div>
-            <div class="diff-group">
-                <span id="f-diff-label" class="diff-label">Desafío</span>
-                <div id="f-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
+        <div class="progress-area">
             <div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div>
-            <span id="f-pct" class="pct-label">0%</span>
+            <span id="f-pct" class="pct-text">0%</span>
         </div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Neumáticos 13"+</span>
-                <div id="n13-val" class="main-value">0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="n13-obj" class="target-value">0</span>
-            </div>
-            <div class="diff-group">
-                <span id="n13-diff-label" class="diff-label">Desafío</span>
-                <div id="n13-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n13-diff-label" class="label">Falta</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
+        <div class="progress-area">
             <div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div>
-            <span id="n13-pct" class="pct-label">0%</span>
+            <span id="n13-pct" class="pct-text">0%</span>
         </div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Neumáticos 17"+</span>
-                <div id="n17-val" class="main-value">0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="n17-obj" class="target-value">0</span>
-            </div>
-            <div class="diff-group">
-                <span id="n17-diff-label" class="diff-label">Desafío</span>
-                <div id="n17-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n17-diff-label" class="label">Falta</span><br><div id="n17-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
+        <div class="progress-area">
             <div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div>
-            <span id="n17-pct" class="pct-label">0%</span>
+            <span id="n17-pct" class="pct-text">0%</span>
         </div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span>
-                <div id="s-val" class="main-value">$ 0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="s-obj" class="target-value">$ 0</span>
-            </div>
-            <div class="diff-group">
-                <span id="s-diff-label" class="diff-label">Desafío</span>
-                <div id="s-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Servicios <span id="i-val" class="incidencia">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="s-diff-label" class="label">Falta</span><br><div id="s-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
+        <div class="progress-area">
             <div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div>
-            <span id="s-pct" class="pct-label">0%</span>
+            <span id="s-pct" class="pct-text">0%</span>
         </div>
     </div>
 </div>
 
+<button id="theme-toggle">🌙</button>
+
 <script>
-    const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
+    const SHEET_ID = '2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '257732281';
+    const GID_OBJETIVOS = '1690940562'; 
 
     let rawVentas = [];
     let metasMap = {};
 
+    // PARÁMETROS SOLICITADOS: Limpia comas de miles y mantiene punto decimal
     function parseNum(v) {
-        if (!v) return 0;
-        let s = String(v).replace(/[$\s]/g, '').replace(/,/g, '');
-        return parseFloat(s) || 0;
+        if (!v || v === "" || v === "-") return 0;
+        let s = String(v).trim().replace(/[$\s]/g, '');
+        // Eliminamos la coma (separador de miles en tu caso)
+        s = s.replace(/,/g, '');
+        // El punto decimal ya lo reconoce parseFloat
+        let n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
     }
 
     async function init() {
-        Papa.parse(`${URL_BASE}&gid=${GID_OBJETIVOS}`, {
+        // Carga de Objetivos
+        Papa.parse(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_OBJETIVOS}&output=csv`, {
             download: true, header: true,
             complete: function(results) {
                 results.data.forEach(row => {
-                    if (row.Mes) {
-                        metasMap[row.Mes.trim()] = {
-                            f: parseNum(row.Facturacion),
-                            n13: parseNum(row.Neumaticos13),
-                            n17: parseNum(row.Neumaticos17),
-                            s: parseNum(row.Servicios)
-                        };
-                    }
+                    if (row.Mes) metasMap[row.Mes.trim().toLowerCase()] = {
+                        f: parseNum(row.Facturacion), n13: parseNum(row.Neumaticos13),
+                        n17: parseNum(row.Neumaticos17), s: parseNum(row.Servicios)
+                    };
                 });
                 cargarVentas();
             }
@@ -172,13 +134,13 @@
     }
 
     function cargarVentas() {
-        Papa.parse(`${URL_BASE}&gid=${GID_VENTAS}`, {
+        Papa.parse(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_VENTAS}&output=csv`, {
             download: true, header: false,
             complete: function(results) {
                 rawVentas = results.data;
                 const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes");
                 const sel = document.getElementById('mesSelector');
-                sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
+                sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
                 sel.addEventListener('change', update);
                 update();
             }
@@ -191,15 +153,20 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            if (String(row[0]).trim() === "88" && String(row[14]).trim() === mesSel) {
-                const imp = parseNum(row[6]);
-                const cant = parseNum(row[5]);
-                const llanta = parseNum(row[11]);
-                const rango = String(row[10]).trim();
-                real.f += imp;
-                if (llanta >= 13) real.n13 += cant;
-                if (llanta >= 17) real.n17 += cant;
-                if (rango === "A_SERVICIO") real.s += imp;
+            const suc = String(row[0]).trim();
+            const mesRow = String(row[14]).trim().toLowerCase();
+            const act = String(row[8]).trim(); // Columna I (Actividad)
+
+            if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
+                const monto = parseNum(row[6]); // Columna G
+                const cant = parseNum(row[5]);  // Columna F
+                const rodado = parseNum(row[11]); // Columna L
+                const rango = String(row[10]).trim(); // Columna K
+
+                real.f += monto;
+                if (rodado >= 13) real.n13 += cant;
+                if (rodado >= 17) real.n17 += cant;
+                if (rango === "A_SERVICIO") real.s += monto;
             }
         });
 
@@ -226,15 +193,21 @@
         const labelEl = document.getElementById(`${id}-diff-label`);
         
         if (diff < 0) {
-            labelEl.innerText = "Desafío";
+            labelEl.innerText = "Falta";
             diffEl.className = 'diff-tag falta';
-            diffEl.innerText = `${fmt(Math.abs(diff))}`; // Quité el menos para que no se sienta negativo
+            diffEl.innerText = fmt(Math.abs(diff));
         } else {
-            labelEl.innerText = "¡Superado!";
+            labelEl.innerText = "Superado";
             diffEl.className = 'diff-tag superado';
-            diffEl.innerText = `+${fmt(diff)}`;
+            diffEl.innerText = "+" + fmt(diff);
         }
     }
+
+    // Lógica Modo Noche
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
+        document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+    });
 
     init();
 </script>
