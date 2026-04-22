@@ -94,7 +94,6 @@
             complete: function(results) {
                 results.data.forEach(row => {
                     if (row["Mes"]) {
-                        // Nombres exactos de las columnas de tu imagen
                         metasMap[row["Mes"].trim().toLowerCase()] = {
                             f: parseNum(row["Facturacion"]),
                             n13: parseNum(row["Neumaticos13"]),
@@ -149,13 +148,21 @@
         render('s', real.s, meta.s, true);
         
         const inc = real.f > 0 ? (real.s / real.f * 100) : 0;
-        document.getElementById('i-val').innerText = inc.toFixed(2) + '%';
+        document.getElementById('i-val').innerText = inc.toLocaleString('es-AR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + '%';
     }
 
     function render(id, val, target, isMoney) {
         const pct = target > 0 ? Math.round(val / target * 100) : 0;
         const diff = val - target;
-        const fmt = (n) => isMoney ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
+        
+        const fmt = (n) => {
+            let numStr = n.toLocaleString('es-AR', { 
+                useGrouping: false, 
+                minimumFractionDigits: 0, 
+                maximumFractionDigits: 2 
+            });
+            return isMoney ? '$' + numStr : numStr;
+        };
         
         document.getElementById(`${id}-val`).innerText = fmt(val);
         document.getElementById(`${id}-obj`).innerText = fmt(target);
