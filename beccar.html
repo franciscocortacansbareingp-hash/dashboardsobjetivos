@@ -34,7 +34,7 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard Beccar</h1>
-        <select id="mesSelector"><option>Cargando meses...</option></select>
+        <select id="mesSelector"><option>Cargando datos...</option></select>
     </div>
 
     <div class="metric-row">
@@ -83,7 +83,7 @@
     let metasMap = {};
 
     function parseNum(v) {
-        if (v === undefined || v === null || v === "" || v === "-" || v === " ") return 0;
+        if (!v || v === "" || v === "-" || v === " ") return 0;
         let s = String(v).trim().replace(/[$\s]/g, '');
         if (s.includes(',') && s.includes('.')) {
             s = s.replace(/\./g, '').replace(',', '.');
@@ -118,7 +118,6 @@
             download: true, header: false, skipEmptyLines: true,
             complete: function(results) {
                 rawVentas = results.data;
-                // Obtenemos los meses únicos de la columna 14, limpiando espacios
                 const mesesRaw = rawVentas.map(r => String(r[14] || "").trim()).filter(m => m !== "" && m.toLowerCase() !== "mes");
                 const mesesUnicos = [...new Set(mesesRaw)];
                 
@@ -135,14 +134,16 @@
         const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
-        rawVentas.forEach(row => {
-            if (row.length < 15) return;
+        rawVentas.forEach((row, index) => {
+            // Saltamos la cabecera y filas vacías
+            if (index === 0 || row.length < 15) return; 
 
-            const suc = String(row[0] || "").trim();
+            // Limpieza estricta de Sucursal, Mes y Actividad
+            const suc = String(row[0] || "").trim().replace(/^0+/, ''); 
             const mesRow = String(row[14] || "").trim().toLowerCase();
-            const act = String(row[8] || "").trim();
+            const act = String(row[8] || "").trim(); // Actividad
 
-            // Filtro Vendedor 88 y mes seleccionado
+            // FILTRO ESTRICTO: Vendedor 88 Y Mes Y (Actividad 1 O Actividad 5)
             if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
@@ -156,7 +157,8 @@
                     if (rod >= 17) real.n17 += cant;
                 }
                 
-                if (String(row[10] || "").trim().toUpperCase() === "A_SERVICIO") {
+                const rango = String(row[10] || "").trim().toUpperCase();
+                if (rango === "A_SERVICIO") {
                     real.s += imp;
                 }
             }
@@ -174,14 +176,11 @@
     function render(id, val, target, isMoney) {
         const pct = target > 0 ? Math.round(val / target * 100) : 0;
         const diff = val - target;
-        
-        const fmt = (n) => {
-            return n.toLocaleString('es-AR', { 
-                useGrouping: true, 
-                minimumFractionDigits: isMoney ? 2 : 0, 
-                maximumFractionDigits: 2 
-            });
-        };
+        const fmt = (n) => n.toLocaleString('es-AR', { 
+            useGrouping: true, 
+            minimumFractionDigits: isMoney ? 2 : 0, 
+            maximumFractionDigits: 2 
+        });
         
         document.getElementById(`${id}-val`).innerText = isMoney ? '$ ' + fmt(val) : fmt(val);
         document.getElementById(`${id}-obj`).innerText = isMoney ? '$ ' + fmt(target) : fmt(target);
@@ -190,7 +189,6 @@
         
         const dTag = document.getElementById(`${id}-diff`);
         const lTag = document.getElementById(`${id}-diff-label`);
-        
         if (diff < 0) {
             lTag.innerText = "Desafío";
             dTag.className = 'diff-tag falta';
