@@ -21,9 +21,8 @@
             --diff-falta-bg: #eff6ff;
             --diff-falta-text: #1d4ed8;
             --diff-falta-border: #bfdbfe;
-            /* Variables para el tag de incidencia */
-            --tag-bg: #0f172a;
-            --tag-text: #ffffff;
+            --tag-incidencia-bg: #0f172a;
+            --tag-incidencia-text: #ffffff;
         }
 
         body.dark-mode {
@@ -39,11 +38,11 @@
             --diff-falta-bg: #172554;
             --diff-falta-text: #93c5fd;
             --diff-falta-border: #1e40af;
-            --tag-bg: #f8fafc;
-            --tag-text: #0f172a;
+            --tag-incidencia-bg: #f8fafc;
+            --tag-incidencia-text: #0f172a;
         }
 
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: all 0.3s ease; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: background 0.3s, color 0.3s; }
         .container { max-width: 950px; margin: auto; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
@@ -51,7 +50,7 @@
         
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; font-weight: 600; background: var(--card); cursor: pointer; color: var(--primary); }
 
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: background 0.3s; }
         
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         
@@ -60,9 +59,13 @@
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
         
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        .target-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
         .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); display: block; margin-top: 2px; }
 
+        .diff-group { text-align: right; }
+        .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
+        
         .falta { color: var(--diff-falta-text); background: var(--diff-falta-bg); border: 1px solid var(--diff-falta-border); }
         .superado { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); }
 
@@ -71,11 +74,10 @@
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
 
-        /* TAG DE INCIDENCIA CORREGIDO */
         .incidencia-tag { 
             font-size: 0.8rem; font-weight: 700; 
-            color: var(--tag-text); 
-            background: var(--tag-bg); 
+            color: var(--tag-incidencia-text); 
+            background: var(--tag-incidencia-bg); 
             padding: 3px 10px; border-radius: 6px; 
             margin-left: 12px; vertical-align: middle; 
             transition: background 0.3s, color 0.3s;
@@ -87,7 +89,9 @@
             background: var(--primary); color: var(--card); display: flex;
             justify-content: center; align-items: center; font-size: 22px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 10000;
+            transition: transform 0.2s;
         }
+        #theme-toggle:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -108,7 +112,8 @@
                 <span class="target-label">Objetivo</span>
                 <span id="f-obj" class="target-value">$ 0</span>
             </div>
-            <div class="diff-group" style="text-align:right">
+            <div class="diff-group">
+                <span id="f-diff-label" class="diff-label">Desafío</span>
                 <div id="f-diff" class="diff-tag"></div>
             </div>
         </div>
@@ -128,7 +133,8 @@
                 <span class="target-label">Objetivo</span>
                 <span id="n13-obj" class="target-value">0</span>
             </div>
-            <div class="diff-group" style="text-align:right">
+            <div class="diff-group">
+                <span id="n13-diff-label" class="diff-label">Desafío</span>
                 <div id="n13-diff" class="diff-tag"></div>
             </div>
         </div>
@@ -148,7 +154,8 @@
                 <span class="target-label">Objetivo</span>
                 <span id="n17-obj" class="target-value">0</span>
             </div>
-            <div class="diff-group" style="text-align:right">
+            <div class="diff-group">
+                <span id="n17-diff-label" class="diff-label">Desafío</span>
                 <div id="n17-diff" class="diff-tag"></div>
             </div>
         </div>
@@ -168,7 +175,8 @@
                 <span class="target-label">Objetivo</span>
                 <span id="s-obj" class="target-value">$ 0</span>
             </div>
-            <div class="diff-group" style="text-align:right">
+            <div class="diff-group">
+                <span id="s-diff-label" class="diff-label">Desafío</span>
                 <div id="s-diff" class="diff-tag"></div>
             </div>
         </div>
@@ -184,7 +192,7 @@
 <script>
     const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1690940562'; 
+    const GID_OBJETIVOS = '257732281';
 
     let rawVentas = [];
     let metasMap = {};
@@ -234,16 +242,11 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            const vendId = String(row[0]).trim();
-            const mesRow = String(row[14]).trim();
-            
-            // FILTRO VENDEDOR 88 PARA BECCAR
-            if (vendId === "88" && mesRow === mesSel) {
+            if (String(row[0]).trim() === "88" && String(row[14]).trim() === mesSel) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
                 const llanta = parseNum(row[11]);
                 const rango = String(row[10]).trim();
-                
                 real.f += imp;
                 if (llanta >= 13) real.n13 += cant;
                 if (llanta >= 17) real.n17 += cant;
@@ -271,33 +274,30 @@
         document.getElementById(`${id}-pct`).innerText = pct + '%';
         
         const diffEl = document.getElementById(`${id}-diff`);
+        const labelEl = document.getElementById(`${id}-diff-label`);
+        
         if (diff < 0) {
+            labelEl.innerText = "Desafío";
             diffEl.className = 'diff-tag falta';
             diffEl.innerText = `${fmt(Math.abs(diff))}`;
         } else {
+            labelEl.innerText = "¡Superado!";
             diffEl.className = 'diff-tag superado';
             diffEl.innerText = `+${fmt(diff)}`;
         }
     }
 
     const btn = document.getElementById('theme-toggle');
-    const applyTheme = (theme) => {
-        if (theme === 'dark') {
-            document.body.classList.add('dark-mode');
-            btn.textContent = '☀️';
-        } else {
-            document.body.classList.remove('dark-mode');
-            btn.textContent = '🌙';
-        }
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        btn.textContent = '☀️';
     }
 
-    applyTheme(localStorage.getItem('theme'));
-
     btn.addEventListener('click', () => {
+        document.body.classList.toggle('dark-mode');
         const isDark = document.body.classList.contains('dark-mode');
-        const nextTheme = isDark ? 'light' : 'dark';
-        applyTheme(nextTheme);
-        localStorage.setItem('theme', nextTheme);
+        btn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
 
     init();
