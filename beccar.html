@@ -14,7 +14,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
         .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); }
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--primary); font-weight: 600; cursor: pointer; }
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
@@ -26,8 +26,9 @@
         .progress-area { display: flex; align-items: center; gap: 15px; margin-top: 15px; }
         .progress-bg { flex-grow: 1; background: var(--border); height: 10px; border-radius: 10px; overflow: hidden; }
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s; }
-        .pct-text { font-weight: 800; font-size: 0.9rem; color: var(--primary); }
+        .pct-text { font-weight: 800; font-size: 0.9rem; min-width: 40px; color: var(--primary); }
         #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .incidencia { font-size: 0.8rem; background: var(--primary); color: var(--card); padding: 2px 8px; border-radius: 5px; margin-left: 8px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -38,41 +39,51 @@
         <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
-    <div id="metrics-content">
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
-                <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
-
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
-                <div style="text-align:right"><span id="n13-diff-label" class="label">Falta</span><br><div id="n13-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div><span id="n13-pct" class="pct-text">0%</span></div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div>
+            <span id="f-pct" class="pct-text">0%</span>
         </div>
+    </div>
 
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
-                <div style="text-align:right"><span id="n17-diff-label" class="label">Falta</span><br><div id="n17-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div><span id="n17-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n13-diff-label" class="label">Falta</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div>
+            <span id="n13-pct" class="pct-text">0%</span>
+        </div>
+    </div>
 
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Servicios</span><div id="s-val" class="main-value">$ 0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
-                <div style="text-align:right"><span id="s-diff-label" class="label">Falta</span><br><div id="s-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div><span id="s-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n17-diff-label" class="label">Falta</span><br><div id="n17-diff" class="diff-tag"></div></div>
+        </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div>
+            <span id="n17-pct" class="pct-text">0%</span>
+        </div>
+    </div>
+
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Servicios <span id="i-val" class="incidencia">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="s-diff-label" class="label">Falta</span><br><div id="s-diff" class="diff-tag"></div></div>
+        </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div>
+            <span id="s-pct" class="pct-text">0%</span>
         </div>
     </div>
 </div>
@@ -80,28 +91,29 @@
 <button id="theme-toggle">🌙</button>
 
 <script>
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
+    const SHEET_ID = '2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1690940562';
+    const GID_OBJETIVOS = '1690940562'; 
 
-    let rawData = [];
-    let metas = {};
+    let rawVentas = [];
+    let metasMap = {};
 
-    function clean(v) {
+    // LIMPIEZA: Quita comas (miles) y mantiene puntos (decimales)
+    function parseNum(v) {
         if (!v || v === "" || v === "-") return 0;
-        let s = String(v).replace(/[$\s]/g, '').replace(/,/g, ''); // Quitamos coma de miles
-        return parseFloat(s) || 0;
+        let s = String(v).trim().replace(/[$\s]/g, '').replace(/,/g, '');
+        let n = parseFloat(s);
+        return isNaN(n) ? 0 : n;
     }
 
-    async function start() {
-        // Cargar Metas
-        Papa.parse(`${CSV_URL}&gid=${GID_OBJETIVOS}`, {
+    async function init() {
+        Papa.parse(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_OBJETIVOS}&output=csv`, {
             download: true, header: true,
-            complete: function(r) {
-                r.data.forEach(m => {
-                    if(m.Mes) metas[m.Mes.trim().toLowerCase()] = {
-                        f: clean(m.Facturacion), n13: clean(m.Neumaticos13),
-                        n17: clean(m.Neumaticos17), s: clean(m.Servicios)
+            complete: function(results) {
+                results.data.forEach(row => {
+                    if (row.Mes) metasMap[row.Mes.trim().toLowerCase()] = {
+                        f: parseNum(row.Facturacion), n13: parseNum(row.Neumaticos13),
+                        n17: parseNum(row.Neumaticos17), s: parseNum(row.Servicios)
                     };
                 });
                 cargarVentas();
@@ -110,11 +122,12 @@
     }
 
     function cargarVentas() {
-        Papa.parse(`${CSV_URL}&gid=${GID_VENTAS}`, {
+        Papa.parse(`https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${GID_VENTAS}&output=csv`, {
             download: true, header: false,
-            complete: function(r) {
-                rawData = r.data;
-                const meses = [...new Set(rawData.map(row => row[14]))].filter(m => m && m.toLowerCase() !== "mes");
+            complete: function(results) {
+                rawVentas = results.data;
+                // Obtenemos los meses de la columna O (índice 14)
+                const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes");
                 const sel = document.getElementById('mesSelector');
                 sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
                 sel.addEventListener('change', update);
@@ -124,52 +137,54 @@
     }
 
     function update() {
-        const mes = document.getElementById('mesSelector').value;
-        const meta = metas[mes] || { f: 0, n13: 0, n17: 0, s: 0 };
+        const mesSel = document.getElementById('mesSelector').value;
+        const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
-        rawData.forEach(row => {
-            const sucursal = String(row[0]).trim();
+        rawVentas.forEach(row => {
+            const suc = String(row[0]).trim();
             const mesRow = String(row[14]).trim().toLowerCase();
-            const actividad = String(row[8]).trim();
+            const act = String(row[8]).trim();
 
-            if (sucursal === "88" && mesRow === mes && (actividad === "1" || actividad === "5")) {
-                const imp = clean(row[6]);
-                const cant = clean(row[5]);
-                const rodado = clean(row[11]);
-                
-                real.f += imp;
+            // Usamos "88" para Beccar. Si el CSV dice "88 ", el .trim() lo arregla.
+            if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
+                real.f += parseNum(row[6]);
+                const cant = parseNum(row[5]);
+                const rodado = parseNum(row[11]);
                 if (rodado >= 13) real.n13 += cant;
                 if (rodado >= 17) real.n17 += cant;
-                if (String(row[10]).trim() === "A_SERVICIO") real.s += imp;
+                if (String(row[10]).trim() === "A_SERVICIO") real.s += parseNum(row[6]);
             }
         });
 
-        draw('f', real.f, meta.f, true);
-        draw('n13', real.n13, meta.n13, false);
-        draw('n17', real.n17, meta.n17, false);
-        draw('s', real.s, meta.s, true);
+        render('f', real.f, meta.f, true);
+        render('n13', real.n13, meta.n13, false);
+        render('n17', real.n17, meta.n17, false);
+        render('s', real.s, meta.s, true);
+        
+        const incidencia = real.f > 0 ? (real.s / real.f * 100) : 0;
+        document.getElementById('i-val').innerText = incidencia.toFixed(2) + '%';
     }
 
-    function draw(id, v, o, money) {
-        const pct = o > 0 ? Math.round((v / o) * 100) : 0;
-        const diff = v - o;
-        const fmt = n => money ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
-
-        document.getElementById(`${id}-val`).innerText = fmt(v);
-        document.getElementById(`${id}-obj`).innerText = fmt(o);
-        document.getElementById(`${id}-pct`).innerText = pct + '%';
+    function render(id, val, target, isMoney) {
+        const pct = target > 0 ? Math.round(val / target * 100) : 0;
+        const diff = val - target;
+        const fmt = (n) => isMoney ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
+        
+        document.getElementById(`${id}-val`).innerText = fmt(val);
+        document.getElementById(`${id}-obj`).innerText = fmt(target);
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
-
+        document.getElementById(`${id}-pct`).innerText = pct + '%';
+        
         const dEl = document.getElementById(`${id}-diff`);
         const lEl = document.getElementById(`${id}-diff-label`);
         if (diff < 0) {
             lEl.innerText = "Falta";
-            dEl.className = "diff-tag falta";
+            dEl.className = 'diff-tag falta';
             dEl.innerText = fmt(Math.abs(diff));
         } else {
             lEl.innerText = "Superado";
-            dEl.className = "diff-tag superado";
+            dEl.className = 'diff-tag superado';
             dEl.innerText = "+" + fmt(diff);
         }
     }
@@ -179,7 +194,7 @@
         document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     };
 
-    start();
+    init();
 </script>
 </body>
 </html>
