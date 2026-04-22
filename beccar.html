@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard San Martín</title>
+    <title>Dashboard Beccar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -28,7 +28,7 @@
             --bg: #020617;
             --card: #1e293b;
             --primary: #f8fafc;
-            --accent: #22c55e; /* Verde más brillante */
+            --accent: #22c55e;
             --text: #cbd5e1;
             --muted: #94a3b8;
             --border: #334155;
@@ -47,7 +47,7 @@
         
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; font-weight: 600; background: var(--card); cursor: pointer; color: var(--primary); }
 
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: background 0.3s; }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
         
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         
@@ -63,7 +63,6 @@
         .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
         
-        /* Ajuste de estados para modo noche */
         .falta { color: var(--diff-falta-text); background: var(--diff-falta-bg); border: 1px solid var(--diff-falta-border); }
         .superado { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); }
 
@@ -74,23 +73,20 @@
 
         .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
 
-        /* BOTÓN FLOTANTE */
         #theme-toggle {
             position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
             border-radius: 50%; border: none; cursor: pointer;
             background: var(--primary); color: var(--card); display: flex;
             justify-content: center; align-items: center; font-size: 22px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 10000;
-            transition: transform 0.2s;
         }
-        #theme-toggle:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Dashboard San Martín</h1>
+        <h1>Dashboard Beccar</h1>
         <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
@@ -184,7 +180,7 @@
 <script>
     const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1205656859'; 
+    const GID_OBJETIVOS = '1690940562'; 
 
     let rawVentas = [];
     let metasMap = {};
@@ -234,7 +230,8 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            if (String(row[0]).trim() === "99" && String(row[14]).trim() === mesSel) {
+            // CAMBIO A VENDEDOR 88 PARA BECCAR
+            if (String(row[0]).trim() === "88" && String(row[14]).trim() === mesSel) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
                 const llanta = parseNum(row[11]);
@@ -279,7 +276,6 @@
         }
     }
 
-    // Lógica Modo Noche
     const btn = document.getElementById('theme-toggle');
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
