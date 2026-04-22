@@ -21,6 +21,9 @@
             --diff-falta-bg: #eff6ff;
             --diff-falta-text: #1d4ed8;
             --diff-falta-border: #bfdbfe;
+            /* Variables para el tag de incidencia */
+            --tag-incidencia-bg: #0f172a;
+            --tag-incidencia-text: #ffffff;
         }
 
         /* MODO NOCHE COHERENTE */
@@ -28,7 +31,7 @@
             --bg: #020617;
             --card: #1e293b;
             --primary: #f8fafc;
-            --accent: #22c55e; /* Verde más brillante */
+            --accent: #22c55e;
             --text: #cbd5e1;
             --muted: #94a3b8;
             --border: #334155;
@@ -37,6 +40,9 @@
             --diff-falta-bg: #172554;
             --diff-falta-text: #93c5fd;
             --diff-falta-border: #1e40af;
+            /* Inversión de colores para el tag en modo noche */
+            --tag-incidencia-bg: #f8fafc;
+            --tag-incidencia-text: #0f172a;
         }
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: background 0.3s, color 0.3s; }
@@ -63,7 +69,6 @@
         .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
         
-        /* Ajuste de estados para modo noche */
         .falta { color: var(--diff-falta-text); background: var(--diff-falta-bg); border: 1px solid var(--diff-falta-border); }
         .superado { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); }
 
@@ -72,9 +77,19 @@
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
 
-        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+        /* TAG DE INCIDENCIA DINÁMICO */
+        .incidencia-tag { 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            color: var(--tag-incidencia-text); 
+            background: var(--tag-incidencia-bg); 
+            padding: 3px 10px; 
+            border-radius: 6px; 
+            margin-left: 12px; 
+            vertical-align: middle;
+            transition: background 0.3s, color 0.3s;
+        }
 
-        /* BOTÓN FLOTANTE */
         #theme-toggle {
             position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
             border-radius: 50%; border: none; cursor: pointer;
@@ -229,7 +244,7 @@
     }
 
     function update() {
-        const mesSel = document.getElementById('mesSelector').value;
+        const mesSel = document.getElementById('mesSelector').value.trim();
         const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
@@ -279,7 +294,6 @@
         }
     }
 
-    // Lógica Modo Noche
     const btn = document.getElementById('theme-toggle');
     if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
