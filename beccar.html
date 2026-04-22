@@ -3,19 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Beccar</title>
+    <title>Dashboard San Martín</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; }
+        /* --- SISTEMA DE COLORES VARIABLE --- */
+        :root {
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --primary: #0f172a;
+            --accent: #059669;
+            --text: #334155;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --blue-target: #1d4ed8;
+            --progress-bg: #f1f5f9;
+            --diff-falta-bg: #eff6ff;
+            --diff-falta-text: #1d4ed8;
+            --diff-falta-border: #bfdbfe;
+        }
+
+        /* MODO NOCHE COHERENTE */
+        body.dark-mode {
+            --bg: #020617;
+            --card: #1e293b;
+            --primary: #f8fafc;
+            --accent: #22c55e; /* Verde más brillante */
+            --text: #cbd5e1;
+            --muted: #94a3b8;
+            --border: #334155;
+            --blue-target: #60a5fa;
+            --progress-bg: #0f172a;
+            --diff-falta-bg: #172554;
+            --diff-falta-text: #93c5fd;
+            --diff-falta-border: #1e40af;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: background 0.3s, color 0.3s; }
         .container { max-width: 950px; margin: auto; }
         
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
         .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
-        select { padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: white; cursor: pointer; color: var(--primary); }
+        
+        select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); font-size: 0.95rem; font-weight: 600; background: var(--card); cursor: pointer; color: var(--primary); }
 
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: background 0.3s; }
         
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         
@@ -25,31 +57,40 @@
         
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
         .target-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
-        .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
+        .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); display: block; margin-top: 2px; }
 
         .diff-group { text-align: right; }
         .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
         
-        /* Estilo para lo que falta (Azul Motivador) */
-        .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
-        
-        /* Estilo para lo superado (Verde) */
-        .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
+        /* Ajuste de estados para modo noche */
+        .falta { color: var(--diff-falta-text); background: var(--diff-falta-bg); border: 1px solid var(--diff-falta-border); }
+        .superado { color: #ffffff; background: var(--accent); border: 1px solid var(--accent); }
 
         .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
-        .progress-bg { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 10px; overflow: hidden; }
+        .progress-bg { flex-grow: 1; background: var(--progress-bg); height: 10px; border-radius: 10px; overflow: hidden; }
         .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
 
         .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+
+        /* BOTÓN FLOTANTE */
+        #theme-toggle {
+            position: fixed; bottom: 25px; right: 25px; width: 50px; height: 50px;
+            border-radius: 50%; border: none; cursor: pointer;
+            background: var(--primary); color: var(--card); display: flex;
+            justify-content: center; align-items: center; font-size: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4); z-index: 10000;
+            transition: transform 0.2s;
+        }
+        #theme-toggle:active { transform: scale(0.9); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Dashboard Beccar</h1>
+        <h1>Dashboard San Martín</h1>
         <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
@@ -138,10 +179,12 @@
     </div>
 </div>
 
+<button id="theme-toggle">🌙</button>
+
 <script>
     const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '257732281';
+    const GID_OBJETIVOS = '1205656859'; 
 
     let rawVentas = [];
     let metasMap = {};
@@ -191,7 +234,7 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            if (String(row[0]).trim() === "88" && String(row[14]).trim() === mesSel) {
+            if (String(row[0]).trim() === "99" && String(row[14]).trim() === mesSel) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
                 const llanta = parseNum(row[11]);
@@ -228,7 +271,7 @@
         if (diff < 0) {
             labelEl.innerText = "Desafío";
             diffEl.className = 'diff-tag falta';
-            diffEl.innerText = `${fmt(Math.abs(diff))}`; // Quité el menos para que no se sienta negativo
+            diffEl.innerText = `${fmt(Math.abs(diff))}`;
         } else {
             labelEl.innerText = "¡Superado!";
             diffEl.className = 'diff-tag superado';
@@ -236,79 +279,21 @@
         }
     }
 
-    init();
-</script>
-<style>
-    /* Transición suave para que no sea un golpe a la vista */
-    body { 
-        transition: background-color 0.5s ease, color 0.5s ease; 
-    }
-
-    /* Colores Modo Noche */
-    body.dark-mode {
-        background-color: #0f172a !important; /* Azul muy oscuro, casi negro */
-        color: #f8fafc !important;
-    }
-
-    /* Esto hace que los títulos y textos cambien de color naturalmente */
-    body.dark-mode h1, 
-    body.dark-mode h2, 
-    body.dark-mode h3, 
-    body.dark-mode p, 
-    body.dark-mode div, 
-    body.dark-mode span,
-    body.dark-mode label {
-        color: #f8fafc !important;
-    }
-
-    /* Botón Minimalista */
-    #theme-toggle {
-        position: fixed;
-        bottom: 25px;
-        right: 25px;
-        width: 45px;
-        height: 45px;
-        border-radius: 50%;
-        border: none;
-        cursor: pointer;
-        background: #1e293b;
-        color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 20px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        z-index: 10000;
-    }
-    
-    body.dark-mode #theme-toggle {
-        background: #f8fafc;
-        color: #0f172a;
-    }
-</style>
-
-<button id="theme-toggle" title="Cambiar modo">🌙</button>
-
-<script>
+    // Lógica Modo Noche
     const btn = document.getElementById('theme-toggle');
-    const currentTheme = localStorage.getItem('theme');
-
-    if (currentTheme === 'dark') {
+    if (localStorage.getItem('theme') === 'dark') {
         document.body.classList.add('dark-mode');
         btn.textContent = '☀️';
     }
 
     btn.addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        let theme = 'light';
-        if (document.body.classList.contains('dark-mode')) {
-            theme = 'dark';
-            btn.textContent = '☀️';
-        } else {
-            btn.textContent = '🌙';
-        }
-        localStorage.setItem('theme', theme);
+        const isDark = document.body.classList.contains('dark-mode');
+        btn.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
+
+    init();
 </script>
 </body>
 </html>
