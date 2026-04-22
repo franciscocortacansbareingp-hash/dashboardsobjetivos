@@ -14,7 +14,7 @@
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
         .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); }
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--primary); font-weight: 600; cursor: pointer; }
-        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
@@ -25,10 +25,10 @@
         .superado { color: var(--accent); background: rgba(5, 150, 105, 0.1); border: 1px solid var(--accent); }
         .progress-area { display: flex; align-items: center; gap: 15px; margin-top: 15px; }
         .progress-bg { flex-grow: 1; background: var(--border); height: 10px; border-radius: 10px; overflow: hidden; }
-        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s; }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s cubic-bezier(0.4, 0, 0.2, 1); }
         .pct-text { font-weight: 800; font-size: 0.9rem; min-width: 40px; color: var(--primary); }
-        #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .incidencia { font-size: 0.8rem; background: var(--primary); color: var(--card); padding: 2px 8px; border-radius: 5px; margin-left: 8px; }
+        #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; }
+        .incidencia { font-size: 0.8rem; background: var(--primary); color: var(--card); padding: 2px 8px; border-radius: 5px; margin-left: 8px; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -36,78 +36,91 @@
 <div class="container">
     <div class="header">
         <h1>Dashboard Beccar</h1>
-        <select id="mesSelector"><option>Cargando...</option></select>
+        <select id="mesSelector"><option>Cargando meses...</option></select>
     </div>
 
-    <div id="content">
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
-                <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="f-diff-label" class="label">Falta</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
-
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
-                <div style="text-align:right"><span id="n13-diff-label" class="label">Falta</span><br><div id="n13-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div><span id="n13-pct" class="pct-text">0%</span></div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div>
+            <span id="f-pct" class="pct-text">0%</span>
         </div>
+    </div>
 
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
-                <div style="text-align:right"><span id="n17-diff-label" class="label">Falta</span><br><div id="n17-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div><span id="n17-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n13-diff-label" class="label">Falta</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div>
+            <span id="n13-pct" class="pct-text">0%</span>
+        </div>
+    </div>
 
-        <div class="metric-row">
-            <div class="row-main">
-                <div><span class="label">Servicios <span id="i-val" class="incidencia">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
-                <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
-                <div style="text-align:right"><span id="s-diff-label" class="label">Falta</span><br><div id="s-diff" class="diff-tag"></div></div>
-            </div>
-            <div class="progress-area"><div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div><span id="s-pct" class="pct-text">0%</span></div>
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n17-diff-label" class="label">Falta</span><br><div id="n17-diff" class="diff-tag"></div></div>
+        </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div>
+            <span id="n17-pct" class="pct-text">0%</span>
+        </div>
+    </div>
+
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Servicios <span id="i-val" class="incidencia">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="s-diff-label" class="label">Falta</span><br><div id="s-diff" class="diff-tag"></div></div>
+        </div>
+        <div class="progress-area">
+            <div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div>
+            <span id="s-pct" class="pct-text">0%</span>
         </div>
     </div>
 </div>
 
-<button id="theme-toggle">🌙</button>
+<button id="theme-toggle" title="Cambiar modo">🌙</button>
 
 <script>
-    const URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
-    const GID_V = '0';
-    const GID_O = '1690940562';
+    const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
+    const GID_VENTAS = '0';
+    const GID_OBJETIVOS = '1690940562'; 
 
-    let dataV = [];
-    let metas = {};
+    let rawVentas = [];
+    let metasMap = {};
 
-    // FUNCIÓN ANTI-ERROR: Maneja comas de miles y puntos decimales
-    function limpiar(v) {
+    // FUNCIÓN DE LIMPIEZA CLAVE: Solo permite números y el punto decimal.
+    // Esto anula cualquier problema con comas de miles.
+    function parseNum(v) {
         if (!v || v === "" || v === "-") return 0;
-        // 1. Elimina $, espacios y COMAS de miles
-        let s = String(v).replace(/[$\s,]/g, '');
-        // 2. JS entiende el punto como decimal automáticamente
+        let s = String(v).trim().replace(/[^\d.]/g, ''); 
         let n = parseFloat(s);
         return isNaN(n) ? 0 : n;
     }
 
     async function init() {
-        // Cargar Metas primero
-        Papa.parse(`${URL}&gid=${GID_O}`, {
+        // 1. Cargar Metas
+        Papa.parse(`${URL_PUB}&gid=${GID_OBJETIVOS}`, {
             download: true, header: true,
-            complete: function(r) {
-                r.data.forEach(m => {
-                    if (m.Mes) metas[m.Mes.trim().toLowerCase()] = {
-                        f: limpiar(m.Facturacion), n13: limpiar(m.Neumaticos13),
-                        n17: limpiar(m.Neumaticos17), s: limpiar(m.Servicios)
-                    };
+            complete: function(results) {
+                results.data.forEach(row => {
+                    if (row.Mes) {
+                        metasMap[row.Mes.trim().toLowerCase()] = {
+                            f: parseNum(row.Facturacion),
+                            n13: parseNum(row.Neumaticos13),
+                            n17: parseNum(row.Neumaticos17),
+                            s: parseNum(row.Servicios)
+                        };
+                    }
                 });
                 cargarVentas();
             }
@@ -115,78 +128,83 @@
     }
 
     function cargarVentas() {
-        Papa.parse(`${URL}&gid=${GID_V}`, {
+        // 2. Cargar Ventas
+        Papa.parse(`${URL_PUB}&gid=${GID_VENTAS}`, {
             download: true, header: false,
-            complete: function(r) {
-                dataV = r.data;
-                // Columna O (índice 14) para meses
-                const meses = [...new Set(dataV.map(row => row[14]))].filter(m => m && m.toLowerCase() !== "mes");
+            complete: function(results) {
+                rawVentas = results.data;
+                // Columna O (índice 14) contiene los meses
+                const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes");
                 const sel = document.getElementById('mesSelector');
                 sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
-                sel.addEventListener('change', render);
-                render();
+                sel.addEventListener('change', update);
+                update();
             }
         });
     }
 
-    function render() {
+    function update() {
         const mesSel = document.getElementById('mesSelector').value;
-        const meta = metas[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
+        const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
-        dataV.forEach(row => {
+        rawVentas.forEach(row => {
             const suc = String(row[0]).trim();
-            const mRow = String(row[14]).trim().toLowerCase();
-            const act = String(row[8]).trim();
+            const mesRow = String(row[14]).trim().toLowerCase();
+            const actividad = String(row[8]).trim(); // Columna I
 
-            if (suc === "88" && mRow === mesSel && (act === "1" || act === "5")) {
-                const imp = limpiar(row[6]);
-                const cant = limpiar(row[5]);
-                const rod = limpiar(row[11]);
-                
-                real.f += imp;
-                if (rod >= 13) real.n13 += cant;
-                if (rod >= 17) real.n17 += cant;
-                if (String(row[10]).trim() === "A_SERVICIO") real.s += imp;
+            // Filtro Sucursal 88 (Beccar) y Actividades válidas
+            if (suc === "88" && mesRow === mesSel && (actividad === "1" || actividad === "5")) {
+                const monto = parseNum(row[6]); // Columna G
+                const cant = parseNum(row[5]);  // Columna F
+                const rodado = parseNum(row[11]); // Columna L
+                const categoria = String(row[10]).trim(); // Columna K
+
+                real.f += monto;
+                if (rodado >= 13) real.n13 += cant;
+                if (rodado >= 17) real.n17 += cant;
+                if (categoria === "A_SERVICIO") real.s += monto;
             }
         });
 
-        actualizar('f', real.f, meta.f, true);
-        actualizar('n13', real.n13, meta.n13, false);
-        actualizar('n17', real.n17, meta.n17, false);
-        actualizar('s', real.s, meta.s, true);
+        render('f', real.f, meta.f, true);
+        render('n13', real.n13, meta.n13, false);
+        render('n17', real.n17, meta.n17, false);
+        render('s', real.s, meta.s, true);
         
-        const inc = real.f > 0 ? (real.s / real.f * 100) : 0;
-        document.getElementById('i-val').innerText = inc.toFixed(2) + '%';
+        const incidencia = real.f > 0 ? (real.s / real.f * 100) : 0;
+        document.getElementById('i-val').innerText = incidencia.toFixed(2) + '%';
     }
 
-    function actualizar(id, v, o, money) {
-        const pct = o > 0 ? Math.round((v/o)*100) : 0;
-        const diff = v - o;
-        const fmt = n => money ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
-
-        document.getElementById(`${id}-val`).innerText = fmt(v);
-        document.getElementById(`${id}-obj`).innerText = fmt(o);
-        document.getElementById(`${id}-pct`).innerText = pct + '%';
+    function render(id, val, target, isMoney) {
+        const pct = target > 0 ? Math.round(val / target * 100) : 0;
+        const diff = val - target;
+        const fmt = (n) => isMoney ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
+        
+        document.getElementById(`${id}-val`).innerText = fmt(val);
+        document.getElementById(`${id}-obj`).innerText = fmt(target);
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
-
-        const dEl = document.getElementById(`${id}-diff`);
-        const lEl = document.getElementById(`${id}-diff-label`);
+        document.getElementById(`${id}-pct`).innerText = pct + '%';
+        
+        const diffEl = document.getElementById(`${id}-diff`);
+        const labelEl = document.getElementById(`${id}-diff-label`);
+        
         if (diff < 0) {
-            lEl.innerText = "Falta";
-            dEl.className = "diff-tag falta";
-            dEl.innerText = fmt(Math.abs(diff));
+            labelEl.innerText = "Falta";
+            diffEl.className = 'diff-tag falta';
+            diffEl.innerText = fmt(Math.abs(diff));
         } else {
-            lEl.innerText = "Superado";
-            dEl.className = "diff-tag superado";
-            dEl.innerText = "+" + fmt(diff);
+            labelEl.innerText = "Superado";
+            diffEl.className = 'diff-tag superado';
+            diffEl.innerText = "+" + fmt(diff);
         }
     }
 
-    document.getElementById('theme-toggle').onclick = () => {
+    // Toggle Modo Noche
+    document.getElementById('theme-toggle').addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
         document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
-    };
+    });
 
     init();
 </script>
