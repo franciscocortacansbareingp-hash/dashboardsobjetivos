@@ -9,73 +9,86 @@
     <style>
         :root {
             --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669;
-            --text: #334155; --muted: #64748b; --border: #e2e8f0;
-            --progress-bg: #f1f5f9; --falta-bg: #eff6ff; --falta-text: #1d4ed8;
+            --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8;
         }
         body.dark-mode {
             --bg: #020617; --card: #1e293b; --primary: #f8fafc; --accent: #22c55e;
-            --text: #cbd5e1; --muted: #94a3b8; --border: #334155;
-            --progress-bg: #0f172a; --falta-bg: #172554; --falta-text: #93c5fd;
+            --text: #cbd5e1; --muted: #94a3b8; --border: #334155; --blue-target: #60a5fa;
         }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; transition: 0.3s; }
-        .container { max-width: 900px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
-        select { padding: 8px; border-radius: 8px; background: var(--card); color: var(--primary); border: 1px solid var(--border); font-weight: 600; }
-        .metric-row { background: var(--card); border-radius: 12px; border: 1px solid var(--border); padding: 20px; margin-bottom: 15px; }
-        .row-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; align-items: center; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; transition: 0.3s; }
+        .container { max-width: 950px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
+        .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); }
+        select { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: var(--primary); font-weight: 600; cursor: pointer; }
+        .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; }
+        .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; }
-        .val { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
-        .obj { font-size: 1.2rem; font-weight: 700; color: var(--muted); }
-        .tag { padding: 6px; border-radius: 6px; text-align: center; font-weight: 700; font-size: 1rem; }
-        .falta { background: var(--falta-bg); color: var(--falta-text); }
-        .superado { background: var(--accent); color: #fff; }
-        .bar-bg { background: var(--progress-bg); height: 8px; border-radius: 10px; margin-top: 15px; overflow: hidden; }
-        .bar-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s; }
-        #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 45px; height: 45px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); }
+        .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
+        .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        .target-value { font-size: 1.3rem; font-weight: 700; color: var(--muted); }
+        .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
+        .falta { color: var(--blue-target); background: #eff6ff22; border: 1px solid var(--blue-target); }
+        .superado { color: var(--accent); background: #ecfdf522; border: 1px solid var(--accent); }
+        .progress-bg { flex-grow: 1; background: var(--border); height: 10px; border-radius: 10px; overflow: hidden; }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: 1s; }
+        #theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; border: none; cursor: pointer; background: var(--primary); color: var(--card); font-size: 1.5rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .incidencia-tag { font-size: 0.8rem; background: var(--primary); color: var(--card); padding: 3px 10px; border-radius: 6px; margin-left: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1 id="title">Dashboard Beccar</h1>
+        <h1>Dashboard Beccar</h1>
         <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
     <div class="metric-row">
-        <div class="row-grid">
-            <div><span class="label">Facturación</span><div id="f-val" class="val">$ 0</div></div>
-            <div style="text-align:center"><span class="label">Objetivo</span><div id="f-obj" class="obj">$ 0</div></div>
-            <div style="text-align:right"><span class="label">Diferencia</span><div id="f-diff" class="tag">-</div></div>
+        <div class="row-main">
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="f-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="f-diff-label" class="label">Desafío</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
-        <div class="bar-bg"><div id="f-bar" class="bar-fill"></div></div>
-    </div>
-    
-    <div class="metric-row">
-        <div class="row-grid">
-            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="val">0</div></div>
-            <div style="text-align:center"><span class="label">Objetivo</span><div id="n13-obj" class="obj">0</div></div>
-            <div style="text-align:right"><span class="label">Diferencia</span><div id="n13-diff" class="tag">-</div></div>
+        <div style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+            <div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div>
+            <span id="f-pct" style="font-weight:800;">0%</span>
         </div>
-        <div class="bar-bg"><div id="n13-bar" class="bar-fill"></div></div>
     </div>
 
     <div class="metric-row">
-        <div class="row-grid">
-            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="val">0</div></div>
-            <div style="text-align:center"><span class="label">Objetivo</span><div id="n17-obj" class="obj">0</div></div>
-            <div style="text-align:right"><span class="label">Diferencia</span><div id="n17-diff" class="tag">-</div></div>
+        <div class="row-main">
+            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n13-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n13-diff-label" class="label">Desafío</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
-        <div class="bar-bg"><div id="n17-bar" class="bar-fill"></div></div>
+        <div style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+            <div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div>
+            <span id="n13-pct" style="font-weight:800;">0%</span>
+        </div>
     </div>
 
     <div class="metric-row">
-        <div class="row-grid">
-            <div><span class="label">Servicios</span><div id="s-val" class="val">$ 0</div></div>
-            <div style="text-align:center"><span class="label">Objetivo</span><div id="s-obj" class="obj">$ 0</div></div>
-            <div style="text-align:right"><span class="label">Diferencia</span><div id="s-diff" class="tag">-</div></div>
+        <div class="row-main">
+            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="n17-obj" class="target-value">0</div></div>
+            <div style="text-align:right"><span id="n17-diff-label" class="label">Desafío</span><br><div id="n17-diff" class="diff-tag"></div></div>
         </div>
-        <div class="bar-bg"><div id="s-bar" class="bar-fill"></div></div>
+        <div style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+            <div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div>
+            <span id="n17-pct" style="font-weight:800;">0%</span>
+        </div>
+    </div>
+
+    <div class="metric-row">
+        <div class="row-main">
+            <div><span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><div id="s-obj" class="target-value">$ 0</div></div>
+            <div style="text-align:right"><span id="s-diff-label" class="label">Desafío</span><br><div id="s-diff" class="diff-tag"></div></div>
+        </div>
+        <div style="display:flex; align-items:center; gap:15px; margin-top:15px;">
+            <div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div>
+            <span id="s-pct" style="font-weight:800;">0%</span>
+        </div>
     </div>
 </div>
 
@@ -85,94 +98,107 @@
     const SHEET_ID = '2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4';
     const GID_VENTAS = '0';
     const GID_OBJETIVOS = '257732281';
-    
-    // Función para armar la URL sin errores 400
     const getUrl = (gid) => `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${gid}&output=csv`;
 
     let rawVentas = [];
     let metasMap = {};
 
-    function cleanNum(v) {
+    function parseNum(v) {
         if (!v) return 0;
-        return parseFloat(String(v).replace(/[$.]/g, '').replace(',', '.')) || 0;
+        let s = String(v).replace(/[$\s]/g, '').replace(/,/g, '');
+        return parseFloat(s) || 0;
     }
 
-    async function cargarDatos() {
-        // 1. Cargar Objetivos
+    async function init() {
         Papa.parse(getUrl(GID_OBJETIVOS), {
             download: true, header: true,
             complete: function(results) {
                 results.data.forEach(row => {
-                    let mes = row.Mes || row.MES;
-                    if(mes) metasMap[mes.trim()] = {
-                        f: cleanNum(row.Facturacion),
-                        n13: cleanNum(row.Neumaticos13),
-                        n17: cleanNum(row.Neumaticos17),
-                        s: cleanNum(row.Servicios)
+                    if (row.Mes) metasMap[row.Mes.trim().toLowerCase()] = {
+                        f: parseNum(row.Facturacion),
+                        n13: parseNum(row.Neumaticos13),
+                        n17: parseNum(row.Neumaticos17),
+                        s: parseNum(row.Servicios),
+                        originalName: row.Mes.trim()
                     };
                 });
-                // 2. Cargar Ventas
-                Papa.parse(getUrl(GID_VENTAS), {
-                    download: true, header: false,
-                    complete: function(resVentas) {
-                        rawVentas = resVentas.data;
-                        const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m !== "Mes");
-                        const sel = document.getElementById('mesSelector');
-                        sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
-                        sel.addEventListener('change', render);
-                        render();
-                    }
-                });
+                cargarVentas();
             }
         });
     }
 
-    function render() {
-        const mes = document.getElementById('mesSelector').value;
-        const meta = metasMap[mes] || { f:0, n13:0, n17:0, s:0 };
-        let real = { f:0, n13:0, n17:0, s:0 };
+    function cargarVentas() {
+        Papa.parse(getUrl(GID_VENTAS), {
+            download: true, header: false,
+            complete: function(results) {
+                rawVentas = results.data;
+                const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes");
+                const sel = document.getElementById('mesSelector');
+                sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
+                sel.addEventListener('change', update);
+                update();
+            }
+        });
+    }
+
+    function update() {
+        const mesSel = document.getElementById('mesSelector').value;
+        const meta = metasMap[mesSel] || { f: 0, n13: 0, n17: 0, s: 0 };
+        let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            // Filtro por sucursal 88 (Beccar) y Mes
-            if (String(row[0]).trim() === "88" && String(row[14]).trim() === mes) {
-                const monto = cleanNum(row[6]);
-                const cant = cleanNum(row[5]);
-                const rodado = cleanNum(row[11]);
-                real.f += monto;
-                if (rodado >= 13) real.n13 += cant;
-                if (rodado >= 17) real.n17 += cant;
-                if (String(row[10]).trim() === "A_SERVICIO") real.s += monto;
+            const suc = String(row[0]).trim();
+            const act = String(row[8]).trim(); // Columna I
+            const mes = String(row[14]).trim().toLowerCase();
+
+            if (suc === "88" && mes === mesSel && (act === "1" || act === "5")) {
+                const imp = parseNum(row[6]);
+                const cant = parseNum(row[5]);
+                const llanta = parseNum(row[11]);
+                const rango = String(row[10]).trim();
+                real.f += imp;
+                if (llanta >= 13) real.n13 += cant;
+                if (llanta >= 17) real.n17 += cant;
+                if (rango === "A_SERVICIO") real.s += imp;
             }
         });
 
-        actualizarUI('f', real.f, meta.f, true);
-        actualizarUI('n13', real.n13, meta.n13, false);
-        actualizarUI('n17', real.n17, meta.n17, false);
-        actualizarUI('s', real.s, meta.s, true);
+        renderMetric('f', real.f, meta.f, true);
+        renderMetric('n13', real.n13, meta.n13, false);
+        renderMetric('n17', real.n17, meta.n17, false);
+        renderMetric('s', real.s, meta.s, true);
+        document.getElementById('i-val').innerText = (real.f > 0 ? (real.s / real.f * 100).toFixed(2) : 0) + '%';
     }
 
-    function actualizarUI(id, v, o, money) {
-        const diff = v - o;
-        const pct = o > 0 ? Math.min((v/o)*100, 100) : 0;
-        const fmt = (n) => money ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n);
+    function renderMetric(id, val, target, isMoney) {
+        const pct = target > 0 ? Math.round(val / target * 100) : 0;
+        const diff = val - target;
+        const fmt = (n) => isMoney ? '$' + Math.floor(n).toLocaleString('es-AR') : Math.floor(n).toLocaleString('es-AR');
         
-        document.getElementById(`${id}-val`).innerText = fmt(v);
-        document.getElementById(`${id}-obj`).innerText = fmt(o);
-        document.getElementById(`${id}-bar`).style.width = pct + '%';
+        document.getElementById(`${id}-val`).innerText = fmt(val);
+        document.getElementById(`${id}-obj`).innerText = fmt(target);
+        document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
+        document.getElementById(`${id}-pct`).innerText = pct + '%';
         
-        const dEl = document.getElementById(`${id}-diff`);
-        dEl.innerText = fmt(Math.abs(diff));
-        dEl.className = `tag ${diff >= 0 ? 'superado' : 'falta'}`;
+        const dTag = document.getElementById(`${id}-diff`);
+        const dLab = document.getElementById(`${id}-diff-label`);
+        if (diff < 0) {
+            dLab.innerText = "Falta";
+            dTag.className = 'diff-tag falta';
+            dTag.innerText = fmt(Math.abs(diff));
+        } else {
+            dLab.innerText = "Superado";
+            dTag.className = 'diff-tag superado';
+            dTag.innerText = "+" + fmt(diff);
+        }
     }
 
-    // Modo Noche
-    const btn = document.getElementById('theme-toggle');
-    btn.addEventListener('click', () => {
+    document.getElementById('theme-toggle').addEventListener('click', () => {
         document.body.classList.toggle('dark-mode');
-        btn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        document.getElementById('theme-toggle').innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
     });
 
-    cargarDatos();
+    init();
 </script>
 </body>
 </html>
