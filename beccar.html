@@ -19,7 +19,7 @@
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
         .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
-        .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
+        .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 140px; text-align: center; }
         .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
         .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
         .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
@@ -39,8 +39,8 @@
 
     <div class="metric-row">
         <div class="row-main">
-            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="f-obj" class="target-value">$ 0</span></div>
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0,00</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="f-obj" class="target-value">$ 0,00</span></div>
             <div style="text-align:right"><span id="f-diff-label" class="label">Desafío</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
         <div class="progress-bar-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-label">0%</span></div>
@@ -66,8 +66,8 @@
 
     <div class="metric-row">
         <div class="row-main">
-            <div><span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
-            <div class="target-group"><span class="label">Objetivo</span><span id="s-obj" class="target-value">$ 0</span></div>
+            <div><span class="label">Servicios <span id="i-val" class="incidencia-tag">0,00%</span></span><div id="s-val" class="main-value">$ 0,00</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="s-obj" class="target-value">$ 0,00</span></div>
             <div style="text-align:right"><span id="s-diff-label" class="label">Desafío</span><br><div id="s-diff" class="diff-tag"></div></div>
         </div>
         <div class="progress-bar-area"><div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div><span id="s-pct" class="pct-label">0%</span></div>
@@ -82,7 +82,6 @@
     let rawVentas = [];
     let metasMap = {};
 
-    // LIMPIEZA DE NÚMEROS: Maneja tanto "1234.56" como "1.234,56"
     function parseNum(v) {
         if (!v || v === "" || v === "-") return 0;
         let s = String(v).replace(/[$\s]/g, '');
@@ -140,15 +139,16 @@
             if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
-                const rodText = String(row[11]).replace(/[^\d]/g, ''); // Solo números del rodado
-                const rod = parseInt(rodText) || 0;
-
-                real.f += imp;
-                // Filtrado por rodado exacto
-                if (rod >= 13) real.n13 += cant;
-                if (rod >= 17) real.n17 += cant;
+                const rodText = String(row[11]).replace(/[^\d]/g, ''); 
                 
-                // Servicios: Columna 10 (Rango) debe ser "A_SERVICIO"
+                real.f += imp;
+
+                if (rodText !== "") {
+                    const rod = parseInt(rodText);
+                    if (rod >= 13) real.n13 += cant;
+                    if (rod >= 17) real.n17 += cant;
+                }
+                
                 if (String(row[10]).trim().toUpperCase() === "A_SERVICIO") {
                     real.s += imp;
                 }
@@ -168,30 +168,34 @@
         const pct = target > 0 ? Math.round(val / target * 100) : 0;
         const diff = val - target;
         
+        // FORMATO: Punto para miles, coma para decimales
         const fmt = (n) => {
-            let numStr = n.toLocaleString('es-AR', { 
-                useGrouping: false, 
-                minimumFractionDigits: 0, 
+            return n.toLocaleString('es-AR', { 
+                useGrouping: true, // Activa el separador de miles (.)
+                minimumFractionDigits: isMoney ? 2 : 0, 
                 maximumFractionDigits: 2 
             });
-            return isMoney ? '$' + numStr : numStr;
         };
         
-        document.getElementById(`${id}-val`).innerText = fmt(val);
-        document.getElementById(`${id}-obj`).innerText = fmt(target);
+        const valorFinal = isMoney ? '$ ' + fmt(val) : fmt(val);
+        const objetivoFinal = isMoney ? '$ ' + fmt(target) : fmt(target);
+
+        document.getElementById(`${id}-val`).innerText = valorFinal;
+        document.getElementById(`${id}-obj`).innerText = objetivoFinal;
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
         document.getElementById(`${id}-pct`).innerText = pct + '%';
         
         const dTag = document.getElementById(`${id}-diff`);
         const lTag = document.getElementById(`${id}-diff-label`);
+        
         if (diff < 0) {
             lTag.innerText = "Desafío";
             dTag.className = 'diff-tag falta';
-            dTag.innerText = fmt(Math.abs(diff));
+            dTag.innerText = isMoney ? '$ ' + fmt(Math.abs(diff)) : fmt(Math.abs(diff));
         } else {
             lTag.innerText = "¡Superado!";
             dTag.className = 'diff-tag superado';
-            dTag.innerText = `+${fmt(diff)}`;
+            dTag.innerText = isMoney ? '+ $ ' + fmt(diff) : '+' + fmt(diff);
         }
     }
     init();
