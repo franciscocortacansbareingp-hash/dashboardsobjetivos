@@ -3,163 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard San Martín</title>
+    <title>Dashboard Beccar</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --bg: #f8fafc; --card: #ffffff; --primary: #0f172a; --accent: #059669; --text: #334155; --muted: #64748b; --border: #e2e8f0; --blue-target: #1d4ed8; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 30px 20px; margin: 0; }
         .container { max-width: 950px; margin: auto; }
-        
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid var(--border); }
         .header h1 { font-size: 1.7rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.02em; }
         select { padding: 8px 16px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 0.95rem; font-weight: 600; background: white; cursor: pointer; color: var(--primary); }
-
         .metric-row { background: var(--card); border-radius: 14px; border: 1px solid var(--border); padding: 20px 25px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        
         .row-main { display: grid; grid-template-columns: 1.8fr 1fr 1.2fr; align-items: center; gap: 10px; }
-        
-        .label-group { display: flex; flex-direction: column; }
         .label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .main-value { font-size: 1.9rem; font-weight: 800; color: var(--primary); margin-top: 4px; }
-        
         .target-group { text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-        .target-label { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
         .target-value { font-size: 1.3rem; font-weight: 700; color: #475569; display: block; margin-top: 2px; }
-
-        .diff-group { text-align: right; }
-        .diff-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 600; margin-bottom: 4px; display: block; }
         .diff-tag { font-size: 1.1rem; font-weight: 700; padding: 6px 14px; border-radius: 8px; display: inline-block; min-width: 120px; text-align: center; }
-        
         .falta { color: var(--blue-target); background: #eff6ff; border: 1px solid #bfdbfe; }
         .superado { color: var(--accent); background: #ecfdf5; border: 1px solid #bbf7d0; }
-
         .progress-bar-area { margin-top: 15px; display: flex; align-items: center; gap: 20px; }
         .progress-bg { flex-grow: 1; background: #f1f5f9; height: 10px; border-radius: 10px; overflow: hidden; }
-        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1); }
+        .progress-fill { background: var(--accent); height: 100%; width: 0%; transition: width 1s ease; }
         .pct-label { font-size: 0.9rem; font-weight: 800; color: var(--primary); min-width: 45px; }
-
-        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; vertical-align: middle; }
+        .incidencia-tag { font-size: 0.8rem; font-weight: 700; color: #ffffff; background: var(--primary); padding: 3px 10px; border-radius: 6px; margin-left: 12px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1>Dashboard San Martín</h1>
+        <h1>Dashboard Beccar</h1>
         <select id="mesSelector"><option>Cargando...</option></select>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Facturación Total</span>
-                <div id="f-val" class="main-value">$ 0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="f-obj" class="target-value">$ 0</span>
-            </div>
-            <div class="diff-group">
-                <span id="f-diff-label" class="diff-label">Desafío</span>
-                <div id="f-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Facturación Total</span><div id="f-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="f-obj" class="target-value">$ 0</span></div>
+            <div style="text-align:right"><span id="f-diff-label" class="label">Desafío</span><br><div id="f-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
-            <div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div>
-            <span id="f-pct" class="pct-label">0%</span>
-        </div>
+        <div class="progress-bar-area"><div class="progress-bg"><div id="f-bar" class="progress-fill"></div></div><span id="f-pct" class="pct-label">0%</span></div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Neumáticos 13"+</span>
-                <div id="n13-val" class="main-value">0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="n13-obj" class="target-value">0</span>
-            </div>
-            <div class="diff-group">
-                <span id="n13-diff-label" class="diff-label">Desafío</span>
-                <div id="n13-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Neumáticos 13"+</span><div id="n13-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="n13-obj" class="target-value">0</span></div>
+            <div style="text-align:right"><span id="n13-diff-label" class="label">Desafío</span><br><div id="n13-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
-            <div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div>
-            <span id="n13-pct" class="pct-label">0%</span>
-        </div>
+        <div class="progress-bar-area"><div class="progress-bg"><div id="n13-bar" class="progress-fill"></div></div><span id="n13-pct" class="pct-label">0%</span></div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Neumáticos 17"+</span>
-                <div id="n17-val" class="main-value">0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="n17-obj" class="target-value">0</span>
-            </div>
-            <div class="diff-group">
-                <span id="n17-diff-label" class="diff-label">Desafío</span>
-                <div id="n17-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Neumáticos 17"+</span><div id="n17-val" class="main-value">0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="n17-obj" class="target-value">0</span></div>
+            <div style="text-align:right"><span id="n17-diff-label" class="label">Desafío</span><br><div id="n17-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
-            <div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div>
-            <span id="n17-pct" class="pct-label">0%</span>
-        </div>
+        <div class="progress-bar-area"><div class="progress-bg"><div id="n17-bar" class="progress-fill"></div></div><span id="n17-pct" class="pct-label">0%</span></div>
     </div>
 
     <div class="metric-row">
         <div class="row-main">
-            <div class="label-group">
-                <span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span>
-                <div id="s-val" class="main-value">$ 0</div>
-            </div>
-            <div class="target-group">
-                <span class="target-label">Objetivo</span>
-                <span id="s-obj" class="target-value">$ 0</span>
-            </div>
-            <div class="diff-group">
-                <span id="s-diff-label" class="diff-label">Desafío</span>
-                <div id="s-diff" class="diff-tag"></div>
-            </div>
+            <div><span class="label">Servicios <span id="i-val" class="incidencia-tag">0%</span></span><div id="s-val" class="main-value">$ 0</div></div>
+            <div class="target-group"><span class="label">Objetivo</span><span id="s-obj" class="target-value">$ 0</span></div>
+            <div style="text-align:right"><span id="s-diff-label" class="label">Desafío</span><br><div id="s-diff" class="diff-tag"></div></div>
         </div>
-        <div class="progress-bar-area">
-            <div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div>
-            <span id="s-pct" class="pct-label">0%</span>
-        </div>
+        <div class="progress-bar-area"><div class="progress-bg"><div id="s-bar" class="progress-fill"></div></div><span id="s-pct" class="pct-label">0%</span></div>
     </div>
 </div>
 
 <script>
-    const URL_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
+    const URL_PUB = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSCmHe-75PjLOZxC8rj9ZiRx58SU0crBtp9FGokKFYUIN3FSONy7091EQPrVZWmHrkuXEuK-rg3uCx4/pub?output=csv';
     const GID_VENTAS = '0';
-    const GID_OBJETIVOS = '1205656859'; // GID San Martín
+    const GID_OBJETIVOS = '257732281'; 
 
     let rawVentas = [];
     let metasMap = {};
 
     function parseNum(v) {
-        if (!v) return 0;
-        let s = String(v).replace(/[$\s]/g, '').replace(/,/g, '');
+        if (!v || v === "" || v === "-") return 0;
+        let s = String(v).replace(/[^\d.]/g, ''); 
         return parseFloat(s) || 0;
     }
 
     async function init() {
-        Papa.parse(`${URL_BASE}&gid=${GID_OBJETIVOS}`, {
-            download: true, header: true,
+        Papa.parse(`${URL_PUB}&gid=${GID_OBJETIVOS}`, {
+            download: true, header: true, skipEmptyLines: true,
             complete: function(results) {
                 results.data.forEach(row => {
-                    if (row.Mes) {
-                        metasMap[row.Mes.trim()] = {
-                            f: parseNum(row.Facturacion),
-                            n13: parseNum(row.Neumaticos13),
-                            n17: parseNum(row.Neumaticos17),
-                            s: parseNum(row.Servicios)
+                    if (row["Mes"]) {
+                        metasMap[row["Mes"].trim().toLowerCase()] = {
+                            f: parseNum(row["Actividad"]),
+                            n13: parseNum(row["Llanta"]),
+                            n17: parseNum(row["Llanta 17"]),
+                            s: parseNum(row["RANGO"])
                         };
                     }
                 });
@@ -169,13 +108,13 @@
     }
 
     function cargarVentas() {
-        Papa.parse(`${URL_BASE}&gid=${GID_VENTAS}`, {
-            download: true, header: false,
+        Papa.parse(`${URL_PUB}&gid=${GID_VENTAS}`, {
+            download: true, header: false, skipEmptyLines: true,
             complete: function(results) {
                 rawVentas = results.data;
                 const meses = [...new Set(rawVentas.map(r => r[14]))].filter(m => m && m.toLowerCase() !== "mes");
                 const sel = document.getElementById('mesSelector');
-                sel.innerHTML = meses.map(m => `<option value="${m}">${m}</option>`).join('');
+                sel.innerHTML = meses.map(m => `<option value="${m.toLowerCase()}">${m}</option>`).join('');
                 sel.addEventListener('change', update);
                 update();
             }
@@ -188,16 +127,18 @@
         let real = { f: 0, n13: 0, n17: 0, s: 0 };
 
         rawVentas.forEach(row => {
-            // Vendedor 99 para San Martín
-            if (String(row[0]).trim() === "99" && String(row[14]).trim() === mesSel) {
+            const suc = String(row[0]).trim();
+            const mesRow = String(row[14]).trim().toLowerCase();
+            const act = String(row[8]).trim();
+
+            if (suc === "88" && mesRow === mesSel && (act === "1" || act === "5")) {
                 const imp = parseNum(row[6]);
                 const cant = parseNum(row[5]);
-                const llanta = parseNum(row[11]);
-                const rango = String(row[10]).trim();
+                const rod = parseNum(row[11]);
                 real.f += imp;
-                if (llanta >= 13) real.n13 += cant;
-                if (llanta >= 17) real.n17 += cant;
-                if (rango === "A_SERVICIO") real.s += imp;
+                if (rod >= 13) real.n13 += cant;
+                if (rod >= 17) real.n17 += cant;
+                if (String(row[10]).trim().toUpperCase() === "A_SERVICIO") real.s += imp;
             }
         });
 
@@ -206,8 +147,8 @@
         render('n17', real.n17, meta.n17, false);
         render('s', real.s, meta.s, true);
         
-        const incidencia = real.f > 0 ? (real.s / real.f * 100) : 0;
-        document.getElementById('i-val').innerText = incidencia.toFixed(2) + '%';
+        const inc = real.f > 0 ? (real.s / real.f * 100) : 0;
+        document.getElementById('i-val').innerText = inc.toFixed(2) + '%';
     }
 
     function render(id, val, target, isMoney) {
@@ -220,20 +161,18 @@
         document.getElementById(`${id}-bar`).style.width = Math.min(pct, 100) + '%';
         document.getElementById(`${id}-pct`).innerText = pct + '%';
         
-        const diffEl = document.getElementById(`${id}-diff`);
-        const labelEl = document.getElementById(`${id}-diff-label`);
-        
+        const dTag = document.getElementById(`${id}-diff`);
+        const lTag = document.getElementById(`${id}-diff-label`);
         if (diff < 0) {
-            labelEl.innerText = "Desafío";
-            diffEl.className = 'diff-tag falta';
-            diffEl.innerText = `${fmt(Math.abs(diff))}`;
+            lTag.innerText = "Desafío";
+            dTag.className = 'diff-tag falta';
+            dTag.innerText = fmt(Math.abs(diff));
         } else {
-            labelEl.innerText = "¡Superado!";
-            diffEl.className = 'diff-tag superado';
-            diffEl.innerText = `+${fmt(diff)}`;
+            lTag.innerText = "¡Superado!";
+            dTag.className = 'diff-tag superado';
+            dTag.innerText = `+${fmt(diff)}`;
         }
     }
-
     init();
 </script>
 </body>
